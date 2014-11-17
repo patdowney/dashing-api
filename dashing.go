@@ -14,29 +14,49 @@ import (
 	"github.com/martini-contrib/encoder"
 )
 
-// The Martini instance.
-var m *martini.Martini
+type dashingServer struct {
+	martini *martini.Martini
+	broker  *Broker
+}
 
-// The Event broker.
-var b *Broker
+func NewServer() *dashingServer {
+	s := dashingServer{
+		martini: martini.New(),
+		broker:  NewBroker(),
+	}
 
-func init() {
-	m = martini.New()
+	s.initDashing()
 
+	return &s
+}
+
+func (s *dashingServer) Start() {
+	// Start the event broker
+	s.broker.Start()
+
+	// Start the jobs
+	for _, j := range registry {
+		go j.Work(s.broker.events)
+	}
+
+	// Start Martini
+	s.martini.Run()
+}
+
+func (s *dashingServer) initDashing() {
 	// Setup middleware
-	m.Use(martini.Recovery())
-	m.Use(martini.Logger())
-	m.Use(martini.Static("public"))
+	s.martini.Use(martini.Recovery())
+	s.martini.Use(martini.Logger())
+	s.martini.Use(martini.Static("public"))
 
 	// Setup encoder
-	m.Use(func(c martini.Context, w http.ResponseWriter) {
+	s.martini.Use(func(c martini.Context, w http.ResponseWriter) {
 		c.MapTo(encoder.JsonEncoder{}, (*encoder.Encoder)(nil))
 		w.Header().Set("Content-Type", "application/json; charset=utf-8")
 	})
 
 	// Setup and inject event broker
-	b = NewBroker()
-	m.Map(b)
+	s.martini.Map(s.broker)
 
 	// Setup routes
 	r := martini.NewRouter()
@@ -170,19 +190,12 @@ func init() {
 	})
 
 	// Add the router action
-	m.Action(r.Handle)
+	s.martini.Action(r.Handle)
 }
 
 // Start all jobs and listen to requests.
 func Start() {
-	// Start the event broker
-	b.Start()
+	server := NewServer()
 
-	// Start the jobs
-	for _, j := range registry {
-		go j.Work(b.events)
-	}
-
-	// Start Martini
-	m.Run()
+	server.Start()
 }
