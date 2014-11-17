@@ -17,12 +17,15 @@ import (
 type dashingServer struct {
 	martini *martini.Martini
 	broker  *Broker
+
+	staticDirectory string
 }
 
-func NewServer() *dashingServer {
+func NewServer(staticDirectory string) *dashingServer {
 	s := dashingServer{
-		martini: martini.New(),
-		broker:  NewBroker(),
+		martini:         martini.New(),
+		broker:          NewBroker(),
+		staticDirectory: staticDirectory,
 	}
 
 	s.initDashing()
@@ -47,7 +50,7 @@ func (s *dashingServer) initDashing() {
 	// Setup middleware
 	s.martini.Use(martini.Recovery())
 	s.martini.Use(martini.Logger())
-	s.martini.Use(martini.Static("public"))
+	s.martini.Use(martini.Static(s.staticDirectory))
 
 	// Setup encoder
 	s.martini.Use(func(c martini.Context, w http.ResponseWriter) {
@@ -195,7 +198,11 @@ func (s *dashingServer) initDashing() {
 
 // Start all jobs and listen to requests.
 func Start() {
-	server := NewServer()
+	StartWithStaticDirectory("public")
+}
+
+func StartWithStaticDirectory(staticDirectory string) {
+	server := NewServer(staticDirectory)
 
 	server.Start()
 }
