@@ -106,11 +106,11 @@ func postEvent(r *http.Request, params martini.Params, b *Broker, target string)
 	var data map[string]interface{}
 
 	if err := json.NewDecoder(r.Body).Decode(&data); err != nil {
-		return 400, ""
+		return http.StatusBadRequest, ""
 	}
 
 	b.events <- &Event{params["id"], data, target}
-	return 204, ""
+	return http.StatusNoContent, ""
 }
 
 func PostDashboardEvent(r *http.Request, params martini.Params, b *Broker) (int, string) {
