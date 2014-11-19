@@ -44,7 +44,7 @@ func (b *Broker) Start() {
 				delete(b.clients, s)
 				// log.Println("Removed client")
 			case event := <-b.events:
-				b.cache[event.ID] = event
+				b.cache[event.WidgetID] = event
 				// There is a new event to send. For each
 				// attached client, push the new event
 				// into the client's channel.

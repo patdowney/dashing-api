@@ -66,7 +66,7 @@ func GetEvents(w http.ResponseWriter, r *http.Request, e encoder.Encoder, b *Bro
 		select {
 		case event := <-events:
 			data := event.Body
-			data["id"] = event.ID
+			data["id"] = event.WidgetID
 			data["updatedAt"] = int32(time.Now().Unix())
 			if event.Target != "" {
 				fmt.Fprintf(w, "event: %s\n", event.Target)
