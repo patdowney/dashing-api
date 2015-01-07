@@ -62,7 +62,6 @@ func (s *dashingServer) initDashing() {
 	r.Get("/:dashboard", GetDashboard)
 	r.Post("/dashboards/:id", PostDashboardEvent)
 	r.Post("/widgets/:id", PostWidgetEvent)
-	r.Get("/views/:widget.html", GetWidget)
 
 	// Add the router action
 	s.martini.Action(r.Handle)

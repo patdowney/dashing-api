@@ -120,17 +120,3 @@ func PostDashboardEvent(r *http.Request, params martini.Params, b *Broker) (int,
 func PostWidgetEvent(r *http.Request, params martini.Params, b *Broker) (int, string) {
 	return postEvent(r, params, b, "")
 }
-
-func GetWidget(w http.ResponseWriter, r *http.Request, params martini.Params) {
-	template, err := gerb.ParseFile(true, "widgets/"+params["widget"]+"/"+params["widget"]+".html")
-
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
-
-	template.Render(w, nil)
-	return
-}
