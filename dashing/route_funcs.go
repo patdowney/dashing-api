@@ -42,6 +42,7 @@ func GetEvents(w http.ResponseWriter, r *http.Request, e encoder.Encoder, b *Bro
 	w.Header().Set("Cache-Control", "no-cache")
 	w.Header().Set("Connection", "keep-alive")
 	w.Header().Set("X-Accel-Buffering", "no")
+	w.Header().Set("Access-Control-Allow-Origin", "*")
 	closer := c.CloseNotify()
 
 	for {
