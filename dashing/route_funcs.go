@@ -73,8 +73,11 @@ func postEvent(r *http.Request, params martini.Params, b *Broker, target string)
 		return http.StatusBadRequest, ""
 	}
 
-	b.events <- &Event{params["id"], data, target}
-	return http.StatusNoContent, ""
+	b.events <- &Event{
+		WidgetID: params["id"],
+		Body:     data,
+		Target:   target}
+	return http.StatusAccepted, ""
 }
 
 func PostDashboardEvent(r *http.Request, params martini.Params, b *Broker) (int, string) {
