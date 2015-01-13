@@ -5,29 +5,11 @@ import (
 	"fmt"
 	"log"
 	"net/http"
-	"os"
-	"path/filepath"
 	"time"
 
 	"github.com/go-martini/martini"
-	"github.com/karlseguin/gerb"
 	"github.com/martini-contrib/encoder"
 )
-
-func GetRoot(w http.ResponseWriter, r *http.Request) {
-	files, _ := filepath.Glob("dashboards/*.gerb")
-
-	for _, file := range files {
-		dashboard := file[11 : len(file)-5]
-		if dashboard != "layout" {
-			http.Redirect(w, r, "/"+dashboard, http.StatusTemporaryRedirect)
-			return
-		}
-	}
-
-	http.NotFound(w, r)
-	return
-}
 
 func GetEvents(w http.ResponseWriter, r *http.Request, e encoder.Encoder, b *Broker) {
 	f, ok := w.(http.Flusher)
@@ -78,24 +60,6 @@ func GetEvents(w http.ResponseWriter, r *http.Request, e encoder.Encoder, b *Bro
 			return
 		}
 	}
-}
-
-func GetDashboard(r *http.Request, w http.ResponseWriter, params martini.Params) {
-	template, err := gerb.ParseFile(true, "dashboards/"+params["dashboard"]+".gerb", "dashboards/layout.gerb")
-
-	if err != nil {
-		http.NotFound(w, r)
-		return
-	}
-
-	w.Header().Set("Content-Type", "text/html; charset=UTF-8")
-
-	template.Render(w, map[string]interface{}{
-		"dashboard":   params["dashboard"],
-		"development": os.Getenv("DEV") != "",
-		"request":     r,
-	})
-	return
 }
 
 func postEvent(r *http.Request, params martini.Params, b *Broker, target string) (int, string) {

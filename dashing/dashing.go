@@ -57,9 +57,8 @@ func (s *dashingServer) initDashing() {
 	// Setup routes
 	r := martini.NewRouter()
 
-	r.Get("/", GetRoot)
+	r.Get("/", GetEvents)
 	r.Get("/events", GetEvents)
-	r.Get("/:dashboard", GetDashboard)
 	r.Post("/dashboards/:id", PostDashboardEvent)
 	r.Post("/widgets/:id", PostWidgetEvent)
 
